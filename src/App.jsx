@@ -1,14 +1,15 @@
-// import { useState } from 'react'
+import { MeetingProvider } from './context/MeetingProvider'
 
-import './App.css'
+import Home from './pages/Home'
+
 
 function App() {
   
 
   return (
-    <>
-      <div>APP</div>
-    </>
+    <MeetingProvider>
+      <Home/>
+    </MeetingProvider>
   )
 }
 
