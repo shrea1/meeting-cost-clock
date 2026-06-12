@@ -1,9 +1,13 @@
 import { useMeeting } from '../hooks/useMeeting'
+import {useLocalStorage} from '../hooks/useLocalStorage'
+
 import { Play, Pause, RotateCcw } from 'lucide-react'
 
 export default function MeetingControls() {
-  const { state, dispatch } = useMeeting()
-  const { isRunning, attendees } = state
+  const { state, dispatch } = useMeeting();
+  const { isRunning, attendees, elapsed } = state;
+  const [, setHistory] = useLocalStorage('meeting-history', [])
+
 
   const handleToggle = () => {
     if (attendees.length === 0 && !isRunning) {
@@ -14,6 +18,22 @@ export default function MeetingControls() {
   }
 
   const handleReset = () => {
+    if (elapsed > 5 && attendees.length > 0) {
+      const totalSalary = attendees.reduce((sum, a) => sum + a.salary, 0)
+      const costPerSec = totalSalary / (160 * 3600)
+      const totalCost = costPerSec * elapsed
+
+      const entry = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        duration: elapsed,
+        totalCost: totalCost.toFixed(2),
+        attendees: attendees.map((a) => ({ name: a.name, salary: a.salary })),
+      }
+
+      // Save to localStorage via hook
+      setHistory((prev) => [entry, ...prev.slice(0, 49)]) // keep last 50
+    }
     dispatch({ type: 'RESET' })
   }
 
